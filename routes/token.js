@@ -1,23 +1,17 @@
 'use strict';
 
+const bcrypt = require('bcrypt-as-promised');
+const boom = require('boom');
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const knex = require('../knex');
+const { camelizeKeys } = require('humps');
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
-// YOUR CODE HERE
-const boom = require('boom');
-
-const bcrypt = require('bcrypt-as-promised');
-
-const knex = require('../knex');
-
-const jwt = require('jsonwebtoken');
-
-const { camelizeKeys } = require('humps');
-
 router.get('/token', (req, res) => {
-  jwt.verify(req.cookies.token, process.env.JWT_KEY, (err, claim) => {
+  jwt.verify(req.cookies.token, process.env.JWT_KEY, (err, _payload) => {
     if (err) {
       return res.send(false);
     }
@@ -27,10 +21,20 @@ router.get('/token', (req, res) => {
 });
 
 router.post('/token', (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !email.trim()) {
+    return next(boom.create(400, 'Email must not be blank'));
+  }
+
+  if (!password || password.length < 8) {
+    return next(boom.create(400, 'Password must not be blank'));
+  }
+
   let user;
 
   knex('users')
-    .where('email', req.body.email)
+    .where('email', email)
     .first()
     .then((row) => {
       if (!row) {
@@ -39,18 +43,18 @@ router.post('/token', (req, res, next) => {
 
       user = camelizeKeys(row);
 
-      return bcrypt.compare(req.body.password, user.hashedPassword);
+      return bcrypt.compare(password, user.hashedPassword);
     })
     .then(() => {
       const claim = { userId: user.id };
       const token = jwt.sign(claim, process.env.JWT_KEY, {
-        expiresIn: '7 days',
+        expiresIn: '7 days'
       });
 
       res.cookie('token', token, {
         httpOnly: true,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-        secure: router.get('env') === 'production',
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),  // 7 days
+        secure: router.get('env') === 'production'
       });
 
       delete user.hashedPassword;
@@ -67,7 +71,7 @@ router.post('/token', (req, res, next) => {
 
 router.delete('/token', (req, res) => {
   res.clearCookie('token');
-  res.send(true);
+  res.end();
 });
 
 module.exports = router;
