@@ -1,5 +1,8 @@
+/* eslint-disable func-names, strict */
 
-exports.up = function(knex) {
+'use strict';
+
+exports.up = function (knex) {
   return knex.schema.createTable('favorites', (table) => {
     table.increments();
     table
@@ -7,17 +10,19 @@ exports.up = function(knex) {
       .notNullable()
       .references('id')
       .inTable('books')
-      .onDelete('CASCADE');
+      .onDelete('CASCADE')
+      .index();
     table
       .integer('user_id')
       .notNullable()
       .references('id')
       .inTable('users')
-      .onDelete('CASCADE');
+      .onDelete('CASCADE')
+      .index();
     table.timestamps(true, true);
-  })
+  });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('favorites');
 };

@@ -1,5 +1,4 @@
-/* eslint-disable func-names */
-/* eslint-disable strict */
+/* eslint-disable func-names, strict */
 
 'use strict';
 

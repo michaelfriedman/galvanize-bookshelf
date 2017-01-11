@@ -1,5 +1,8 @@
+/* eslint-disable func-names, strict */
 
-exports.up = function(knex) {
+'use strict';
+
+exports.up = function (knex) {
   return knex.schema.createTable('users', (table) => {
     table.increments();
     table.string('first_name').notNullable().defaultTo('');
@@ -7,9 +10,9 @@ exports.up = function(knex) {
     table.string('email').unique().notNullable();
     table.specificType('hashed_password', 'char(60)').notNullable();
     table.timestamps(true, true);
-  })
+  });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('users');
 };

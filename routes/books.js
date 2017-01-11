@@ -1,3 +1,5 @@
+/* eslint-disable func-names, strict, consistent-return, radix */
+
 'use strict';
 
 const express = require('express');
@@ -152,6 +154,7 @@ router.delete('/books/:id', (req, res, next) => {
       res.send(camelizeKeys(book));
     })
     .catch((err) => {
+      // eslint-disable-next-line no-console
       console.error(err);
       next(err);
     });

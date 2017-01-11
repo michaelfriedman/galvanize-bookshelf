@@ -1,3 +1,5 @@
+/* eslint-disable strict */
+
 'use strict';
 
 const express = require('express');
@@ -11,7 +13,7 @@ const boom = require('boom');
 
 const knex = require('../knex');
 const { camelizeKeys, decamelizeKeys } = require('humps');
-
+// eslint-disable-next-line consistent-return
 router.post('/users', (req, res, next) => {
   const { email, password } = req.body;
 
